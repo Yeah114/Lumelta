@@ -1,5 +1,8 @@
 # Lumelta
 
+## 项目仓库
+[github](https://github.com/Yeah114/Lumelta)
+
 ## 项目概述
 Lumelta 是基于 Lupa 框架开发的 ToolDelta 平台扩展插件，专注于为 Lumega 生态的 Lua 插件提供运行时支持。作为连接 ToolDelta 框架与 Lumega 插件生态的桥梁，本项目致力于实现高度兼容的 Lua 插件运行环境。
 
