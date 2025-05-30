@@ -7,12 +7,16 @@ except:
 from tooldelta.constants import SysStatus
 from tooldelta.internal.cmd_executor import ConsoleCmdManager
 from tooldelta import utils
+from tooldelta.utils import fmts
 import os
+import json
 import shutil
 import glob
+import requests
 import importlib
 import traceback
 from pathlib import Path
+from requests.exceptions import RequestException
 from tooldelta.utils import fmts
 from tooldelta import Plugin, plugin_entry
 
@@ -60,16 +64,61 @@ class LumeltaPlugin(Plugin):
         super().__init__(frame)
 #        self.inject_system_menu()
 #        self.ListenFrameExit(self.on_exit)
-        self.ListenActive(self.setup_lumega)
+        self.datas_remote_url = "https://raw.githubusercontent.com/Yeah114/Lumelta/main/datas.json"
+        self.ListenActive(self.active)
         self.ListenFrameExit(self.uninstallation_lumega)
         #self.ListenPreload(self.setup_lumega)
+        self.python_dir_path = Path(__file__).parent
+        self.datas_file_path = self.python_dir_path / 'datas.json'
         self.neomega_storage_dir_path = Path("./neomega_storage")
-        self.default_neomega_storage_dir_path = Path(__file__).parent / "neomega_storage"
+        self.default_neomega_storage_dir_path = self.python_dir_path / "neomega_storage"
         os.makedirs(self.neomega_storage_dir_path, exist_ok=True)
         self.lumega_plugin_configs_dir_path = self.neomega_storage_dir_path / "config"
         self.lumega_plugins_dir_path = self.neomega_storage_dir_path / "lang" / "LuaLoader"
         sync_folders(self.default_neomega_storage_dir_path, self.neomega_storage_dir_path,  [str(self.lumega_plugins_dir_path / "coromega.lua")])
         self.lumega_plugins = []
+        self.fmts_header = fmts.colormode_replace("§f Lumelta ", 7) + " "
+
+    def active(self):
+        self.check_update()
+        self.setup_lumega()
+
+    @utils.thread_func("lumelta.check_update")
+    def check_update(self):
+        """
+        检查本地datas.json与远程GitHub仓库中的datas.json版本差异
+        """
+        try:
+            # 读取本地JSON文件
+            with open(self.datas_file_path, 'r', encoding='utf-8') as f:
+                local_datas = json.load(f)
+                local_version = local_datas.get('version', 'UNKNOWN')
+                self.print(f"当前版本: v{local_version}")
+                
+            # 获取远程JSON文件
+            self.print("正在检查更新...")
+            response = requests.get(self.datas_remote_url, timeout=5)
+            response.raise_for_status()  # 检查HTTP错误
+            
+            remote_data = response.json()
+            remote_version = remote_data.get('version', '未知版本')
+            
+            # 比较版本
+            if remote_version != local_version:
+                self.print("发现新版本可用！")
+                self.print(f"当前版本: v{local_version} → 最新版本: v{remote_version}")
+                self.print("请访问项目仓库获取更新: https://github.com/Yeah114/Lumelta")
+            else:
+                self.print("当前已是最新版本")
+                
+        except FileNotFoundError:
+            self.print(f"错误：本地文件 {local_file} 不存在")
+        except json.JSONDecodeError:
+            self.print("错误：JSON解析失败，请检查文件格式")
+        except RequestException as e:
+            self.print(f"网络请求失败: {str(e)}")
+        except Exception as e:
+            self.print(f"发生未知错误: {str(e)}")
 
     def setup_lumega(self):
         self.control = Control(self.frame, self.neomega_storage_dir_path)
