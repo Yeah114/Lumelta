@@ -1,6 +1,6 @@
 {
     "author": "Yeah",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "plugin-type": "classic",
     "description": "Lumega on ToolDelta",
     "pre-plugins": {
