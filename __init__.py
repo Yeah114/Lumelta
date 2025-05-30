@@ -26,7 +26,7 @@ def sync_folders(src_dir, dst_dir, force_overwrite=None):
 
     :param src_dir: 源文件夹路径
     :param dst_dir: 目标文件夹路径
-    :param force_overwrite: 需要强制覆盖的文件名列表（仅文件名，不包括路径）
+    :param force_overwrite: 需要强制覆盖的文件列表
     """
     if force_overwrite is None:
         force_overwrite = []
@@ -48,7 +48,7 @@ def sync_folders(src_dir, dst_dir, force_overwrite=None):
             if not os.path.exists(dst_file):
                 shutil.copy2(src_file, dst_file)
             else:
-                if file in force_overwrite:
+                if src_file in force_overwrite:
                     shutil.copy2(src_file, dst_file)
 
 class LumeltaPlugin(Plugin):
@@ -65,10 +65,10 @@ class LumeltaPlugin(Plugin):
         #self.ListenPreload(self.setup_lumega)
         self.neomega_storage_dir_path = Path("./neomega_storage")
         self.default_neomega_storage_dir_path = Path(__file__).parent / "neomega_storage"
-        sync_folders(self.default_neomega_storage_dir_path, self.neomega_storage_dir_path)
         os.makedirs(self.neomega_storage_dir_path, exist_ok=True)
         self.lumega_plugin_configs_dir_path = self.neomega_storage_dir_path / "config"
         self.lumega_plugins_dir_path = self.neomega_storage_dir_path / "lang" / "LuaLoader"
+        sync_folders(self.default_neomega_storage_dir_path, self.neomega_storage_dir_path,  [str(self.lumega_plugins_dir_path / "coromega.lua")])
         self.lumega_plugins = []
 
     def setup_lumega(self):

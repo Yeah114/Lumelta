@@ -8,8 +8,6 @@ import re
 import sys
 import traceback
 
-from six import string_types
-
 ##############################################################################################################
 # 这是一个宽松的JSON解析器，不像标准json库那么严格。
 # 不敢相信居然没有现成的库，只能自己写一个...
@@ -154,7 +152,7 @@ class LooseJsonParser:
                     if stage == '等待键':
                         # 递归解析键，并验证是否为字符串
                         next_dict_key = self.get_object()
-                        if not isinstance(next_dict_key, string_types):
+                        if not isinstance(next_dict_key, str):
                             # 非字符串键转换为JSON字符串表示（确保None转换为null）
                             if isinstance(next_dict_key, (int, float, bool)):
                                 next_dict_key = str(json.dumps(next_dict_key))
