@@ -229,7 +229,7 @@ class Control:
         lua_runtime.globals()["ud2lua"] = userdata2lua
         # package_path
         package_path = lua_runtime.globals()["package"].path
-        package_path += f";{str(Path(self.lua_code_dir_path) / "?.lua")}"
+        package_path += ";" + str(Path(self.lua_code_dir_path) / "?.lua")
         lua_runtime.globals()["package"].path = package_path
         # setmetatable
         lua_runtime.globals()["osetmetatable"] = lua_runtime.globals()["setmetatable"]
